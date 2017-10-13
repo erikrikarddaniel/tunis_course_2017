@@ -1,0 +1,6 @@
+sessionname tunis_course_2017
+setenv ROOT $PWD
+# __INSERTPOINT__ This line allows a script to insert new configuration lines here.
+chdir $ROOT
+screen -t man
+screen -t root

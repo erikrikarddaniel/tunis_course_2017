@@ -1,5 +1,4 @@
-Tunis 2017 course: Instructions for how to set up a test computer
-=================================================================
+# Tunis 2017 course: Instructions for how to set up a test computer
 
 This document describes how to set up a computer so that prerequisites for
 Daniel's practical can be tested. During the practical, students will perform
@@ -9,8 +8,7 @@ course.
 I have tested the instructions on a fresh Ubuntu 17.10 installation and I
 provide install commands for that below.
 
-Preinstalled prerequisites
---------------------------
+## Preinstalled prerequisites
 
 This section describes software I expect installed on all lab computers.
 
@@ -48,14 +46,13 @@ After downloading the deb, it can be installed like this:
   $ cd Downloads  # Or wherever the deb was downloaded
   $ sudo dpkg -i rstudio-xenial-1.1.383-amd64.deb  # Current name of deb
 
-What needs to be done test that computers can handle my practical
------------------------------------------------------------------
+## What needs to be done test that computers can handle my practical
 
 This section describes procedures that I intend students to perform themselves
 as this forms part of becoming proficient in computational biology and is not
 particularly difficult even for beginners.
 
---> Install DADA2
+### Install DADA2
 
 Data in the form of 21 pairs of gzipped, subsampled fastq files. These will be
 "cleaned" with DADA2, an R library that builds probabilistic models of errors in
@@ -77,7 +74,7 @@ scripts" if you can't get the below two lines to work.
   > source("https://bioconductor.org/biocLite.R")
   > biocLite("dada2")
 
---> Install Daniel's wrapper scripts
+### Install Daniel's wrapper scripts
 
 I have written wrapper R scripts to make it easier to run DADA2 (this will be
 one option during the practical, the other to follow instructions at the DADA2
@@ -122,7 +119,7 @@ are:
 
   $ which dada2bimeras
 
---> Clone biomakefiles
+### Clone biomakefiles
 
 I use "make" to automate program execution and have for this purpose written a
 library of makefiles with useful recipes. This can also be cloned from my github
@@ -131,6 +128,6 @@ account:
   $ cd ~/dev
   $ git clone https://github.com/erikrikarddaniel/biomakefiles.git
 
---> The data
+### The data
 
-When distributed, this 
+When distributed, this WORK IN PROGRESS.

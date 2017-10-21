@@ -20,11 +20,31 @@ I assume a Linux computer with:
 $ sudo apt install git
 ```
 
-* R 3.2.0 or higher (earlier version in the 3.x series might work, but I'm
-  working on 3.2.3 so there's no guarantee)
+* R 3.4.2 or higher (I think at least 3.3 series is required
+  working on 3.4.2 so there's no guarantee)
+  
+To get the latest R as a Ubuntu package, you need to add a line like this to
+your `/etc/apt/sources.list`:
+
+```
+deb https://<my.favorite.cran.mirror>/bin/linux/ubuntu xenial/
+```
+
+You need to change `<my.favorit.cran.mirror>` for a mirror near you, there's a list here:
+
+https://cran.r-project.org/mirrors.html
+
+After adding that line, you should add the public key of the developer who signs
+packages to avoid warning messages:
 
 ```bash
-$ sudo apt install r-base
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+```
+
+After you've done all this, you can install after and `apt update`:
+
+```bash
+$ sudo apt update && sudo apt install r-base
 ```
 
 * Rstudio 1.1 (1.0 certainly works, but there are some nice new features in 1.1
@@ -123,7 +143,14 @@ are:
 $ which dada2bimeras
 ```
 
-The scripts uses a couple of R libraries that must be installed from R; the 
+The scripts uses a couple of R libraries that must be installed from R, before that
+a Ubuntu package needs to be installed:
+
+```bash
+$ sudo apt install libxml2-dev
+```
+
+the 
 RStudio console is perfect:
 
 ```R

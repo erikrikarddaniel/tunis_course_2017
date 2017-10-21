@@ -123,6 +123,29 @@ are:
 $ which dada2bimeras
 ```
 
+The scripts uses a couple of R libraries that must be installed from R; the 
+RStudio console is perfect:
+
+```R
+> install.packages(c('optparse', 'tidyverse'))
+```
+
+(The "tidyverse" is a meta package containing all libraries from the Tidyverse,
+most importanly dplyr, tidyr and readr. We will be using these *a lot* during
+the practical.)
+
+Check that the scripts work and that all prerequisites are installed and found:
+
+```bash
+$ dada2bimeras --version
+$ dada2cleanNmerge --version
+$ dada2errmodels --version
+$ dada2filter --version
+```
+
+Each command should return a string saying the version of the script (1.0 at the
+time of writing) and DADA2 (1.4.0).
+
 ### Clone biomakefiles
 
 I use "make" to automate program execution and have for this purpose written a

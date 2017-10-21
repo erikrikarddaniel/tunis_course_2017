@@ -16,12 +16,16 @@ I assume a Linux computer with:
 
 * Git
 
-  $ sudo apt install git
+```bash
+$ sudo apt install git
+```
 
 * R 3.2.0 or higher (earlier version in the 3.x series might work, but I'm
   working on 3.2.3 so there's no guarantee)
 
-  $ sudo apt install r-base
+```bash
+$ sudo apt install r-base
+```
 
 * Rstudio 1.1 (1.0 certainly works, but there are some nice new features in 1.1
   that makes it worth the trouble to install 1.1)
@@ -32,9 +36,11 @@ name.)
 
 After downloading the deb, it can be installed like this:
 
-  $ sudo apt install libjpeg62  # A prerequisite
-  $ cd Downloads  # Or wherever the deb was downloaded
-  $ sudo dpkg -i rstudio-xenial-1.1.383-amd64.deb  # Current name of deb
+```bash
+$ sudo apt install libjpeg62  # A prerequisite
+$ cd Downloads  # Or wherever the deb was downloaded
+$ sudo dpkg -i rstudio-xenial-1.1.383-amd64.deb  # Current name of deb
+```
 
 ## What needs to be done test that computers can handle my practical
 
@@ -53,12 +59,16 @@ library and not command line tools, so it needs to be installed, see:
 
 In short, first some Ubuntu prerequisites:
 
-  $ sudo apt install libcurl4-gnutls-dev
+```bash
+$ sudo apt install libcurl4-gnutls-dev
+```
 
 Then, from the RStudio console (command line window inside RStudio):
 
-  > source("https://bioconductor.org/biocLite.R")
-  > biocLite("dada2")
+```R
+> source("https://bioconductor.org/biocLite.R")
+> biocLite("dada2")
+```
 
 ### Install Daniel's wrapper scripts
 
@@ -67,10 +77,12 @@ one option during the practical, the other to follow instructions at the DADA2
 web site). These can be downloaded from GitHub using the following commands
 (note: the first three are only to organize things like I like it):
 
-  $ cd ~
-  $ mkdir dev
-  $ cd dev
-  $ git clone https://github.com/erikrikarddaniel/eemisdada2.git
+```bash
+$ cd ~
+$ mkdir dev
+$ cd dev
+$ git clone https://github.com/erikrikarddaniel/eemisdada2.git
+```
 
 I prefer to have all my github repos under a "dev" directory in my home
 directory, but that's a matter of taste.
@@ -84,8 +96,10 @@ symbolic links in a directory in your PATH, e.g. /usr/local/bin or ~/bin
 Symbolic links in e.g. the bin directory of user's home directory are created
 like this:
 
-  $ cd ~/bin
-  $ ln -s ../dev/eemisdada2/src/R/dada2* .
+```
+$ cd ~/bin
+$ ln -s ../dev/eemisdada2/src/R/dada2* .
+```
 
 At least Ubuntu is normally set up so that if the ~/bin directory exists at
 login time, the directory will be added to the PATH variable. To get this set,
@@ -94,7 +108,9 @@ as a login shell (Profile preferences in the GNOME terminal)
 
 To set the PATH variable to point directly to the Git repo:
 
-  $ export PATH=$PATH:~/dev/eemisdada2/src/R
+```bash
+$ export PATH=$PATH:~/dev/eemisdada2/src/R
+```
 
 (If you use the PATH method, make sure to add the command to .bash_profile or
 whatever initialization file you use.)
@@ -103,7 +119,9 @@ In the end, however you chose to set PATH to point to the scripts in my Git repo
 the following command should reply with a line telling you where the scripts
 are:
 
-  $ which dada2bimeras
+```
+$ which dada2bimeras
+```
 
 ### Clone biomakefiles
 
@@ -111,8 +129,10 @@ I use "make" to automate program execution and have for this purpose written a
 library of makefiles with useful recipes. This can also be cloned from my github
 account:
 
-  $ cd ~/dev
-  $ git clone https://github.com/erikrikarddaniel/biomakefiles.git
+```bash
+$ cd ~/dev
+$ git clone https://github.com/erikrikarddaniel/biomakefiles.git
+```
 
 ### The data
 

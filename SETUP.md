@@ -62,7 +62,7 @@ $ cd Downloads  # Or wherever the deb was downloaded
 $ sudo dpkg -i rstudio-xenial-1.1.383-amd64.deb  # Current name of deb
 ```
 
-## What needs to be done test that computers can handle my practical
+## What needs to be done to test that computers can handle my practical
 
 This section describes procedures that I intend students to perform themselves
 as this forms part of becoming proficient in computational biology and is not
@@ -147,11 +147,10 @@ The scripts uses a couple of R libraries that must be installed from R, before t
 a Ubuntu package needs to be installed:
 
 ```bash
-$ sudo apt install libxml2-dev
+$ sudo apt install libxml2-dev libssl-dev
 ```
 
-the 
-RStudio console is perfect:
+Now, the packages can be installed from inside R, e.g. the RStudio console:
 
 ```R
 > install.packages(c('optparse', 'tidyverse'))

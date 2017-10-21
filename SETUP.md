@@ -5,7 +5,7 @@ Daniel's practical can be tested. During the practical, students will perform
 these steps themselves, so few programs need to be installed prior to the
 course.
 
-I have tested the instructions on a fresh Ubuntu 17.10 installation and I
+I have tested the instructions on a fresh Ubuntu 16.04.3 installation and I
 provide install commands for that below.
 
 ## Preinstalled prerequisites
@@ -18,31 +18,21 @@ I assume a Linux computer with:
 
   $ sudo apt install git
 
-* R 3.4.0 or higher (earlier version in the 3.x series might work, but I'm
-  working on 3.4.2 so there's no guarantee)
+* R 3.2.0 or higher (earlier version in the 3.x series might work, but I'm
+  working on 3.2.3 so there's no guarantee)
 
-To get the latest R in Ubuntu (I assume Debian is the same as Ubuntu), one has
-to add CRAN to the list of sources in /etc/apt/sources.list, see:
-
-  https://cran.r-project.org/bin/linux/ubuntu/README.html
-
-(There are similar pages for RedHat, SuSe and Debian.)
-
-After adding the appropriate repository to the /etc/apt/sources.list, R can be
-installed like this:
-
-  $ sudo apt update && sudo apt install r-base
+  $ sudo apt install r-base
 
 * Rstudio 1.1 (1.0 certainly works, but there are some nice new features in 1.1
   that makes it worth the trouble to install 1.1)
 
 RStudio can be downloaded as a deb file from: www.rstudio.com. Choose the free
-open source desktop version. (For Ubuntu, choose the deb with xenial in its
+open source desktop version. (For Ubuntu, choose the deb with 16.04 in its
 name.)
 
 After downloading the deb, it can be installed like this:
 
-  $ sudo apt install libjpeg62  # A requisite
+  $ sudo apt install libjpeg62  # A prerequisite
   $ cd Downloads  # Or wherever the deb was downloaded
   $ sudo dpkg -i rstudio-xenial-1.1.383-amd64.deb  # Current name of deb
 
@@ -63,13 +53,9 @@ library and not command line tools, so it needs to be installed, see:
 
 In short, first some Ubuntu prerequisites:
 
-  $ apt install libcurl4-gnutls-dev
+  $ sudo apt install libcurl4-gnutls-dev
 
 Then, from the RStudio console (command line window inside RStudio):
-
-WORK IN PROGRESS HERE, there's a problem with R 3.4.2 and one of the packages
-that DADA2 relies on. Continue to the next section "Install Daniel's wrapper
-scripts" if you can't get the below two lines to work.
 
   > source("https://bioconductor.org/biocLite.R")
   > biocLite("dada2")

@@ -5,8 +5,9 @@ Daniel's practical can be tested. During the practical, students will perform
 these steps themselves, so few programs need to be installed prior to the
 course.
 
-I have tested the instructions on a fresh Ubuntu 16.04.3 installation and I
-provide install commands for that below.
+I have tested the instructions on a fresh Ubuntu 16.04.3 installation running
+on a virtual machine with 4 GiB RAM and 200 GiB disk. I provide install commands
+for that below.
 
 ## Preinstalled prerequisites
 
@@ -75,7 +76,7 @@ Data in the form of 21 pairs of gzipped, subsampled fastq files. These will be
 sequences which can be applied to correct sequencing errors. DADA2 is an R
 library and not command line tools, so it needs to be installed, see:
 
-  https://bioconductor.org/packages/release/bioc/html/dada2.html
+https://bioconductor.org/packages/release/bioc/html/dada2.html
 
 In short, first some Ubuntu prerequisites:
 

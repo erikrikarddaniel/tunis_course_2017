@@ -199,3 +199,23 @@ $ git clone https://github.com/erikrikarddaniel/tunis_course_2017.git
 
 After this, `cd` into the `samples` directory of the git repo and download and
 unpack the data tar ball there.
+
+### `screen`
+
+At this stage I'm going to introduce the [screen program](https://www.gnu.org/software/screen/manual/screen.html)
+to the students. It's a very useful tool for two major reasons:
+
+1. It's a command line "window manager" that lets you have easy access to several
+windowns each for a certain purpose and positioned in the correct directory. This
+way you don't need to `cd` (or `pushd`/`popd`) between directories and tasks.
+
+2. It lets you disconnect from a server and keep a command running. In this way it
+replaces `nohup` but is far more sophisticated and you don't need to remember to
+place `nohup` in front of every command.
+
+In the root directory of the project git repo there's a configuration file for screen
+which you can run like this:
+
+```bash
+$ screen -c .screenrc
+```

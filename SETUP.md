@@ -185,4 +185,16 @@ $ git clone https://github.com/erikrikarddaniel/biomakefiles.git
 
 ### The data
 
-When distributed, this WORK IN PROGRESS.
+The data itself will be downloaded from a separately distributed URL. As a help 
+in setting up everything for testing you can clone *this* repository, i.e. the
+repository this documentation belongs to. I always have my projects under a directory
+called `projects`, I assume that you do the same here.
+
+```bash
+$ mkdir ~/projects
+$ cd ~/projects
+$ git clone https://github.com/erikrikarddaniel/tunis_course_2017.git
+```
+
+After this, `cd` into the `samples` directory of the git repo and download and
+unpack the data tar ball there.

@@ -200,10 +200,16 @@ $ git clone https://github.com/erikrikarddaniel/tunis_course_2017.git
 After this, `cd` into the `samples` directory of the git repo and download and
 unpack the data tar ball there.
 
+```bash
+$ cd samples
+$ wget *url*/tunis_course_2017.tar
+$ tar xf tunis_course_2017.tar
+```
+
 ### `screen`
 
 At this stage I'm going to introduce the [screen program](https://www.gnu.org/software/screen/manual/screen.html)
-to the students. It's a very useful tool for two major reasons:
+to the students. It's a very useful tool for three major reasons:
 
 1. It's a command line "window manager" that lets you have easy access to several
 windowns each for a certain purpose and positioned in the correct directory. This
@@ -213,9 +219,53 @@ way you don't need to `cd` (or `pushd`/`popd`) between directories and tasks.
 replaces `nohup` but is far more sophisticated and you don't need to remember to
 place `nohup` in front of every command.
 
+3. You can connect and disconnect to a running screen session from different computers
+allowing you to continue working when you get home (and never have any free time! ;-)).
+
 In the root directory of the project git repo there's a configuration file for screen
 which you can run like this:
 
 ```bash
 $ screen -c .screenrc
 ```
+
+Commands in screen are preceded with a `<ctrl>-a` and I will sprinkle code
+examples below with that. If you choose not to use screen, just ignore those commands
+and do the corresponding `cd` or whatever is required.
+
+### Running the dada2 workflow
+
+The dada2 workflow will be run from the `dada2` directory. If you cloned this 
+repository you will already have a directory with symbolic links pointing to the
+data files in the `samples` directory. Move to the `dada2` directory in screen
+by pressing `<ctrl>-a'dada2` or `<ctrl>-a"` and selecting `dada2` from the list,
+and check that the symbolic links are there and functional.
+
+1. Create a symbolic link to the biomakefiles repository in the root of the project
+directory structure (screen: `<ctrl>-a'root`):
+
+```bash
+$ ln -s ../../dev/biomakefiles
+```
+
+2. Back in the `dada2` directory (screen: `<ctrl>-a'dada2`), create a file called 
+`Makefile` with just a single line:
+
+```make
+include ../biomakefiles/lib/make/makefile.dada2
+```
+
+3. Run dada2. Each of the commands below will take some time, so type in one, wait
+until it finishes and then start the next. It doesn't hurt to check status by
+echoing `$?` like I do below, and take action if it's &gt;1. Also check that output
+files do not indicate errors: `dada2filter.out`, `dada2errmodels.out`, *WORK IN PROGRESS*.
+
+```bash
+$ make -n dada2filter.out  # Shows what will be done, doesn't start
+$ make dada2filter.out  # Runs the command
+$ echo $?  # Shows exit status, should be <2
+$ make -n dada2errmodels.out
+$ make dada2errmodels.out  # DOESN'T work at the moment, CHECKING this
+$ echo $?
+```
+

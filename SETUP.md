@@ -249,23 +249,23 @@ $ ln -s ../../dev/biomakefiles
 ```
 
 2. Back in the `dada2` directory (screen: `<ctrl>-a'dada2`), create a file called 
-`Makefile` with just a single line:
+`Makefile` with this content:
 
 ```make
 include ../biomakefiles/lib/make/makefile.dada2
+
+DADA2_ERRMODELS_OPTS = --verbose --nsamples=21 --maxconsist=30
 ```
 
 3. Run dada2. Each of the commands below will take some time, so type in one, wait
 until it finishes and then start the next. It doesn't hurt to check status by
 echoing `$?` like I do below, and take action if it's &gt;1. Also check that output
-files do not indicate errors: `dada2filter.out`, `dada2errmodels.out`, *WORK IN PROGRESS*.
+files do not indicate errors: `dada2filter.out`, `dada2errmodels.out`, `dada2.cleaned.merged.out`
+and `dada2.cleaned.merged.bimeras.out`.
 
 ```bash
-$ make -n dada2filter.out  # Shows what will be done, doesn't start
-$ make dada2filter.out  # Runs the command
-$ echo $?  # Shows exit status, should be <2
-$ make -n dada2errmodels.out
-$ make dada2errmodels.out  # DOESN'T work at the moment, CHECKING this
+$ make -n dada2.cleaned.merged.bimeras.rds  # Doesn't start anything, just shows what will be run
+$ make dada2.cleaned.merged.bimeras.rds
 $ echo $?
 ```
 

@@ -6,5 +6,6 @@ setenv prefix tunis
 chdir $ROOT/samples
 screen -t samples
 chdir $ROOT
+screen -t rstudio
 screen -t man
 screen -t root

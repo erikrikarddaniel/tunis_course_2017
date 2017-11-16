@@ -67,6 +67,7 @@ scores(lmo.mds) %>% as.data.frame() %>% rownames_to_column('sample') %>%
 
 ```{r demo-data}
 demodata = lmo %>% inner_join(taxonomy, by='seqid') %>%
+  mutate(count = round(count/10)) %>% filter(count > 0, year == 2013) %>%
   dplyr::select(seqid, sample, count, domain:genus) %>% 
   unite(taxonhier, domain:genus, sep=';') %>%
   spread(sample, count, fill=0)

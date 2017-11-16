@@ -5,6 +5,8 @@ setenv prefix tunis
 # __INSERTPOINT__ This line allows a script to insert new configuration lines here.
 chdir $ROOT/samples
 screen -t samples
+chdir $ROOT/data
+screen -t data
 chdir $ROOT
 screen -t man
 screen -t root

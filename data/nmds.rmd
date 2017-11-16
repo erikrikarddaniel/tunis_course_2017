@@ -1,0 +1,75 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(tidyverse)
+library(vegan)
+knitr::opts_chunk$set(echo=F, fig.path='figures/')
+```
+
+```{r}
+samples = read_tsv('LMO.samples.tsv', col_types = cols(.default = col_character(), date=col_date("%Y%m%d"))) %>%
+  mutate(
+    season = case_when(
+      lubridate::month(date) %in% c(12,1,2) ~ 'winter', 
+      lubridate::month(date) %in% c(3, 4, 5) ~ 'spring', 
+      lubridate::month(date) %in% c(6, 7, 8) ~ 'summer', 
+      TRUE ~ 'autumn'
+    ),
+    year = lubridate::year(date)
+  )
+taxonomy = read_tsv('LMO.16S.wang.silva.hier.tsv.gz', col_types = cols(.default = col_character()))
+lmo = read_tsv('LMO.16S.dada2.tsv.gz', col_types = cols(.default = col_character(), count = col_integer())) %>% 
+  inner_join(
+    samples,
+    by = 'sample'
+  ) %>%
+  filter(year %in% c(2011, 2012, 2013), filter_fraction == '3-0.2')
+
+lmo.m = lmo %>% dplyr::select(seqid, sample, count) %>% 
+  spread(seqid, count, fill=0) %>%
+  as.data.frame() %>% remove_rownames() %>% column_to_rownames('sample') %>%
+  as.matrix()
+```
+
+```{r nmds, message=FALSE, warning=FALSE}
+lmo.bc = diversity(lmo.m)
+lmo.mds = metaMDS(lmo.m)
+scores(lmo.mds) %>% as.data.frame() %>% rownames_to_column('sample') %>%
+  inner_join(samples, by = 'sample') %>%
+  ggplot(aes(x=NMDS1, y=NMDS2, colour=season, shape=as.character(year))) +
+  geom_point() +
+  scale_colour_brewer('', palette = 'Set1') +
+  scale_shape_discrete('') +
+  theme_bw() +
+  theme(
+    legend.position = 'bottom'
+  )
+```
+
+```{r nmds-zoom-in}
+scores(lmo.mds) %>% as.data.frame() %>% rownames_to_column('sample') %>%
+  filter(NMDS1 > -1.0, NMDS2 < 1.5, NMDS2 > -1.5) %>%
+  inner_join(samples, by = 'sample') %>%
+  ggplot(aes(x=NMDS1, y=NMDS2, colour=season, shape=as.character(year))) +
+  geom_point() +
+  scale_colour_brewer('', palette = 'Set1') +
+  scale_shape_discrete('') +
+  theme_bw() +
+  theme(
+    legend.position = 'bottom'
+  )
+```
+
+```{r demo-data}
+demodata = lmo %>% inner_join(taxonomy, by='seqid') %>%
+  dplyr::select(seqid, sample, count, domain:genus) %>% 
+  unite(taxonhier, domain:genus, sep=';') %>%
+  spread(sample, count, fill=0)
+write_tsv(demodata, 'tunis_demodata.tsv.gz')
+```
+

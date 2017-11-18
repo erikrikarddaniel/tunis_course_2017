@@ -37,8 +37,7 @@ lmo.m = lmo %>% dplyr::select(seqid, sample, count) %>%
 ```
 
 ```{r nmds, message=FALSE, warning=FALSE}
-lmo.bc = diversity(lmo.m)
-lmo.mds = metaMDS(lmo.m, k = 3)
+lmo.mds = metaMDS(lmo.m)
 scores(lmo.mds) %>% as.data.frame() %>% rownames_to_column('sample') %>%
   inner_join(samples, by = 'sample') %>%
   ggplot(aes(x=NMDS1, y=NMDS2, colour=season, shape=as.character(year))) +
@@ -65,8 +64,21 @@ scores(lmo.mds) %>% as.data.frame() %>% rownames_to_column('sample') %>%
   )
 ```
 
+```{r nmds-d1-d2, message=FALSE, warning=FALSE}
+lmo.mds.1.3 = metaMDS(lmo.m, k = 3)
+scores(lmo.mds.1.3) %>% as.data.frame() %>% rownames_to_column('sample') %>%
+  inner_join(samples, by = 'sample') %>%
+  ggplot(aes(x=NMDS1, y=NMDS2, colour=season, shape=as.character(year))) +
+  geom_point() +
+  scale_colour_brewer('', palette = 'Set1') +
+  scale_shape_discrete('') +
+  theme_bw() +
+  theme(
+    legend.position = 'bottom'
+  )
+```
 ```{r nmds-d1-d3, message=FALSE, warning=FALSE}
-scores(lmo.mds) %>% as.data.frame() %>% rownames_to_column('sample') %>%
+scores(lmo.mds.1.3) %>% as.data.frame() %>% rownames_to_column('sample') %>%
   inner_join(samples, by = 'sample') %>%
   ggplot(aes(x=NMDS1, y=NMDS3, colour=season, shape=as.character(year))) +
   geom_point() +
@@ -78,6 +90,8 @@ scores(lmo.mds) %>% as.data.frame() %>% rownames_to_column('sample') %>%
   )
 ```
 
+# Generate some demo and practical data
+
 ```{r demo-data}
 demodata = lmo %>% inner_join(taxonomy, by='seqid') %>%
   mutate(count = round(count/10)) %>% filter(count > 0, year == 2013) %>%
@@ -85,6 +99,6 @@ demodata = lmo %>% inner_join(taxonomy, by='seqid') %>%
   unite(taxonhier, domain:genus, sep=';') %>%
   spread(sample, count, fill=0)
 write_tsv(demodata, 'day1_practical/tunis_day1_practical.matrix.tsv.gz')
-write_tsv(samples %>% inner_join(demodata %>% distinct(sample), by='sample'), 'day1_practical/tunis_day1_practical.samples.tsv.gz')
+write_tsv(samples %>% inner_join(lmo %>% distinct(sample), by='sample'), 'day1_practical/tunis_day1_practical.samples.tsv.gz')
 ```
 

@@ -25,7 +25,7 @@ For other Linux distributions, the appropriate packages need to be identified.
 
 ## RStudio
 
-Download the lates (1.1.383) version from the [RStudio website](http://rstudio.org)
+Download the latest (1.1.383) version from the [RStudio website](http://rstudio.org)
 in an appropriate format and install.
 
 ## R packages

@@ -1,0 +1,134 @@
+---
+title: "Tunis day 1 practical"
+author: "daniel.lundin@lnu.se"
+date: "20 november 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tunis bioinformatics course, day 1 practical
+
+The task for the first day's practical was to plot monthly
+means of relative abundances coloured by the main phyla.
+
+This documents *one* way of performing this.
+
+The data consists of two tables:
+
+1. A wide matrix with counts: taxa as rows and samples as
+columns
+
+2. A table with sample information including year, date and
+season
+
+We're going to use the Tidyverse to do the analysis.
+
+```{r}
+library(tidyverse)
+```
+
+We start by reading the two tables.
+
+First, read the counts matrix and convert to long format.
+
+```{r read-counts}
+counts <- read_tsv(
+  'tunis_day1_practical.matrix.tsv.gz',
+  col_types = cols(
+    .default = col_integer(), 
+    seqid = col_character(),
+    taxonhier = col_character()
+  )
+) %>%
+  # Make it long, and filter away all zeroes
+  gather(sample, count, 3:40) %>%
+  filter(count > 0) %>%
+  # Calculate relative abundances per sample
+  group_by(sample) %>% 
+  mutate(relab = count/sum(count)) %>%
+  ungroup() %>%
+  # Separate the taxonomy hierarchy string
+  separate(
+    taxonhier, c(
+      'domain', 'phylum', 'class', 'order', 'family', 'genus'
+    ),
+    sep = ';'
+  )
+```
+
+Then, read the samples data and join with the counts.
+
+```{r}
+samplecounts <- read_tsv(
+  'tunis_day1_practical.samples.tsv.gz',
+  col_types = cols(
+    .default = col_character(),
+    date = col_date(format = '%Y-%m-%d')
+  )
+) %>%
+  # Select some of the columns and create a "month" column
+  transmute(sample, year, season, date, month = lubridate::month(date)) %>%
+  inner_join(counts, by='sample')
+```
+
+Since we have so many phyla, find the top 9 (the rest will
+be "Other phyla").
+
+```{r}
+top9phyla <- counts %>%
+  group_by(phylum, sample) %>%
+  summarise(count = sum(count)) %>%
+  summarise(meancount = mean(count)) %>%
+  ungroup() %>%
+  top_n(9, meancount)
+```
+
+Time to calculate mean abundances of the top 9 phyla plus
+"Other phyla" per year and month.
+
+```{r monthly-means}
+monthly_means <- samplecounts %>%
+  # Join in (left) the top 9 phyla and assing "Other phyla"
+  # to the phyla not among the 9.
+  left_join(
+    top9phyla %>% transmute(phylum, mainph = phylum),
+    by='phylum'
+  ) %>%
+  replace_na(list('mainph' = 'Other phyla')) %>%
+  # Calculate sums of phyla per sample
+  group_by(mainph, year, month, sample) %>%
+  summarise(relab = sum(relab)) %>%
+  # Calculate the mean over a month (sample is lost from
+  # group_by now, since it was last in the list).
+  summarise(meanrelab = mean(relab)) %>%
+  # It's always a good idea to ungroup() when you're done
+  ungroup()
+```
+
+Now we can plot
+
+```{r}
+monthly_means %>%
+  ggplot(
+    aes(x = month, y = meanrelab, fill = mainph)
+  ) +
+  # Barplot
+  geom_col() +
+  # A discrete, i.e. integer, x scale from 1 to 12
+  scale_x_discrete(
+    limits = 1:12
+  ) +
+  # Nicer (?) colours
+  scale_fill_brewer('', palette = 'Set3') +
+  xlab('Month') +
+  ylab('Mean relative abundance') +
+  # Change the default setting for theme to bw
+  theme_bw() + 
+  theme(
+    legend.position = 'bottom' # Colour legend at the bottom
+  )
+```
+

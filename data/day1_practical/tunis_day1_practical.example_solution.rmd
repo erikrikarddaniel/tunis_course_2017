@@ -80,10 +80,10 @@ be "Other phyla").
 ```{r}
 top9phyla <- counts %>%
   group_by(phylum, sample) %>%
-  summarise(count = sum(count)) %>%
-  summarise(meancount = mean(count)) %>%
+  summarise(relab = sum(relab)) %>%
+  summarise(meanrelab = mean(relab)) %>%
   ungroup() %>%
-  top_n(9, meancount)
+  top_n(9, meanrelab)
 ```
 
 Time to calculate mean abundances of the top 9 phyla plus

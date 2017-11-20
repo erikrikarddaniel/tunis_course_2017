@@ -1,0 +1,156 @@
+---
+title: "Tunis day 1 demo"
+author: "daniel.lundin@lnu.se"
+date: "20 november 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+library(tidyverse)
+```
+
+# Basic handling of 16S data
+
+## Read the table with counts
+
+```{r}
+lmocounts = read_tsv(
+  '../LMO/16S/dada2/LMO.16S.dada2.tsv.gz',
+  col_types = cols(
+    seqid = col_character(),
+    sample = col_character(),
+    count = col_integer()
+  )
+)
+```
+
+A table with sums.
+
+```{r sums}
+lmocounts %>% group_by(sample) %>%
+  summarise(sumcount = sum(count), mean = mean(count), n = n())
+```
+
+Very basic plot of counts per sample.
+
+```{r}
+lmocounts %>% group_by(sample) %>%
+  summarise(count = sum(count)) %>%
+  ggplot(aes(x=sample, y = count)) +
+  geom_point()
+```
+
+Let's do a boxplot of everything.
+
+```{r}
+lmocounts %>%
+  ggplot(aes(x = sample, y = count)) +
+  geom_boxplot() +
+  scale_y_log10()
+```
+
+Read the samples information table, so we have the filter fraction and
+date for each sample.
+
+```{r read-sample-data}
+samples = read_tsv(
+  '../LMO/16S/dada2/LMO.samples.tsv',
+  col_types = cols(
+    .default = col_character(), 
+    date = col_date(format="%Y%m%d")
+  )
+)
+```
+
+Now, we can subset the counts table to just prefiltered samples from
+2011-13.
+
+```{r subset-samples}
+prefiltered <- samples %>% 
+  filter(
+    filter_fraction == '3-0.2', 
+    lubridate::year(date) %in% c(2011, 2012, 2013)
+  ) %>%
+  select(sample, date) %>%
+  inner_join(lmocounts, by = 'sample') %>%
+  group_by(sample) %>% mutate(relab = count/sum(count)) %>% ungroup()
+```
+
+## Summarise 2011-2013
+
+
+
+```{r prefilt-2011-13-boxplot}
+prefiltered %>% 
+  ggplot(aes(x = sample, y = relab)) +
+    geom_boxplot() +
+    scale_y_log10() +
+    theme(
+      axis.text.x = element_text(angle = 60, hjust = 1)
+    )
+```
+
+Let's read in the taxonomy, allowing us to use that to e.g. colour
+plots.
+
+```{r read-taxonomy}
+taxonomy = read_tsv(
+  '../LMO/16S/dada2/LMO.16S.wang.silva.hier.tsv.gz',
+  col_types = cols(.default = col_character()) 
+)
+```
+
+Identify the top 9 phyla.
+
+```{r top9phyla}
+top9phyla <- prefiltered %>% 
+  inner_join(taxonomy %>% select(seqid, phylum), by = 'seqid') %>%
+  group_by(phylum, sample) %>%
+  summarise(count = sum(count)) %>%
+  summarise(meancount = mean(count)) %>%
+  arrange(desc(meancount)) %>%
+  top_n(9, meancount)
+```
+
+Plot relative abundances with taxonomy.
+
+```{r relab-taxonomy-dist}
+prefiltered %>%
+  inner_join(taxonomy %>% select(seqid, phylum), by = 'seqid') %>%
+  left_join(
+    top9phyla %>% transmute(phylum, major_ph = phylum), by = 'phylum'
+  ) %>%
+  replace_na(list('major_ph' = 'Other phyla')) %>%
+  ggplot(aes(x = as.character(date), y = relab)) +
+  geom_boxplot() +
+  geom_jitter(aes(colour = major_ph), size = 1) +
+  scale_y_log10() +
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1),
+    legend.position = 'bottom'
+  ) +
+  facet_wrap(~lubridate::year(date), scales = 'free_x', ncol = 1)
+```
+
+Make the data wide.
+
+```{r spread-gather}
+wide2long <- prefiltered %>% select(-count) %>% 
+  spread(sample, relab, fill = 0) %>%
+  gather(sample, relab, LMO.16SDNA.20110325.3.0.2:LMO.16SDNA.20131211.3.0.2) %>%
+  filter(relab > 0)
+```
+
+Unite and separate.
+
+```{r}
+unite.spread = taxonomy %>% 
+  unite(thier, domain:genus, sep=';') %>%
+  separate(thier, c('domain', 'ph', 'c', 'o', 'f', 'g'), sep=';')
+```
+
+

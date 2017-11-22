@@ -1,0 +1,127 @@
+---
+title: "Day 3"
+author: "daniel.lundin@lnu.se"
+date: "22 november 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+```
+
+## Read counts and the mapping table
+
+The raw counts table contains the *sequence*, which is long and not
+present in the taxonomy table. To get the *seqid*, which is the key
+in the taxonomy table, we need to join with the name2seq table.
+
+In the process, we also calculate the relative abundance.
+
+```{r}
+counts = read_tsv(
+  'dada2.cleaned.merged.bimeras.tsv.gz',
+  col_types = cols(.default = col_character(), count = col_integer())) %>%
+  inner_join(
+    read_tsv(
+      'dada2.cleaned.merged.bimeras.name2seq.tsv.gz',
+      col_names = c('seqid', 'sequence'),
+      col_types = cols(.default = col_character())
+    ),
+    by = c('seq' = 'sequence')
+  ) %>%
+  select(-seq) %>%
+  group_by(sample) %>%
+  mutate(relab = count/sum(count)) %>%
+  ungroup()
+```
+
+Plot the number of counts per sample (the *sequencing depth*) and the
+relative abundances (multiplied by 10000). The latter is just to check
+that we calculated the relative abundances correctly.
+
+```{r plot-seq-depth}
+counts %>% group_by(sample) %>%
+  summarise(count = sum(count), relab = 10000 * sum(relab)) %>%
+  tidyr::gather(mtype, meas, count, relab) %>%
+  ggplot(aes(x = sample, y = meas, shape = mtype)) +
+  geom_point()
+```
+
+What does the distribution of populations within samples look like?
+
+```{r}
+counts %>%
+  ggplot(aes(x = sample, y = relab)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.1) +
+  scale_y_sqrt()
+```
+
+What about the distribution of populations over samples?
+
+```{r}
+toppops = counts %>%
+  group_by(seqid) %>%
+  summarise(mean_relab = mean(relab)) %>%
+  ungroup() %>%
+  top_n(60, mean_relab)
+
+counts %>%
+  inner_join(toppops, by = 'seqid') %>%
+  ggplot(aes(x = seqid, y = relab)) +
+  geom_boxplot()
+```
+
+Let's read and lock at the taxonomy.
+
+```{r}
+taxonomy = read_tsv(
+  'dada2.cleaned.merged.bimeras.nr.wang.taxonomy.tsv.gz',
+  col_names = c('seqid', 'taxhier'),
+  col_types = cols(.default = col_character())
+) %>%
+  mutate(
+    taxhier = gsub('\\([0-9]+\\)', '', taxhier)
+  ) %>%
+  separate(
+    taxhier, 
+    c( 'domain', 'phylum', 'class', 'order', 'family', 'genus' ),
+    sep = ';', extra = 'drop'
+  )
+```
+
+Plot all taxa without counts.
+
+```{r}
+taxonomy %>% 
+  ggplot(aes(x = phylum)) +
+  geom_bar() +
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1)
+  )
+```
+
+Show a heatmap of class occurrence in samples.
+
+```{r fig.height=12, fig.caption = "Heatmap of classes and samples."}
+counts %>% select(seqid, relab, sample) %>%
+  inner_join(taxonomy %>% select(seqid, class), by='seqid') %>%
+  group_by(sample, class) %>%
+  summarise(relab = sum(relab)) %>%
+  ungroup() %>%
+  ggplot(aes(x = sample, y = class, fill = relab)) +
+  geom_tile() +
+  scale_fill_viridis() +
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1)
+  )
+```
+

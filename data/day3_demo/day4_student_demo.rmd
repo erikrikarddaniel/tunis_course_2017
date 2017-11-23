@@ -1,0 +1,91 @@
+---
+title: "Day 4 phylum plot"
+author: "Students"
+date: "23 november 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+
+We will need a couple of tidyverse libraries.
+
+```{r libraries}
+suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(lubridate))
+```
+
+
+# The data
+
+We have three tables, one containing counts per population (*sequence*) and
+sample, one containing a map from sequence to seqid and one containing taxonomy 
+per population.
+
+```{r read-counts}
+counts <- read_tsv(
+  'dada2.cleaned.merged.bimeras.tsv.gz',
+  col_types = cols(.default = col_character(), count = col_integer())
+)
+```
+
+```{r read-seq2seqid-map}
+seq2seqid <- read_tsv(
+  'dada2.cleaned.merged.bimeras.name2seq.tsv.gz',
+  col_names = c('seqid', 'seq'),
+  col_types = cols(.default = col_character())
+)
+```
+
+
+```{r read-taxonomy}
+taxonomy <- read_tsv(
+  'dada2.cleaned.merged.bimeras.nr.wang.taxonomy.tsv.gz',
+  col_names = c('seqid', 'thier'),
+  col_types = cols(.default = col_character())
+) %>%
+  mutate(thier = gsub("\\([0-9]+\\)", "", thier)) %>%
+  separate(thier, c('Domain', 'Phylum', 'Class', 'x'), sep = ';', extra='merge') %>%
+  mutate(nphylum = ifelse(Phylum == 'Proteobacteria', Class, Phylum))
+```
+
+## 1. Join the counts with the map and deselect the sequence
+```{r}
+counts = counts %>%
+  inner_join(seq2seqid, by = 'seq') %>%
+  select(-seq) %>%
+  group_by(sample) %>%
+  mutate(relab = count/sum(count)) %>%
+  ungroup()
+```
+
+## 2. Calculate phylum/class, join with counts and find top 10
+```{r}
+top10 = taxonomy %>%
+  inner_join(counts, by = 'seqid') %>%
+  group_by(nphylum, sample) %>%
+  summarize(sumrelab = sum(relab)) %>%
+  summarise(maxrelab = max(sumrelab), meanrelab = mean(sumrelab)) %>%
+  top_n(10, maxrelab) 
+```
+
+## 3. Plot barchart with top 10 + other phyla relative abundances per sample
+```{r}
+taxonomy %>%
+  inner_join(counts, by = 'seqid') %>%
+  inner_join(top10, by = 'nphylum') %>%
+  group_by(sample, nphylum) %>%
+  summarise(relab = sum(relab)) %>%
+  ungroup() %>%
+  ggplot(aes(x=sample, y = relab, fill = nphylum))+
+  geom_col()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+
